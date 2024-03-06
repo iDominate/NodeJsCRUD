@@ -1,0 +1,279 @@
+swagger: "2.0"
+info:
+  title: A Todo App
+  description: A REST API for Todos
+  version: 1.0
+  contact: 
+    email: ahmedpython2018@gmail.com
+  servers:
+    - url: "http://localhost:5000/"
+      description: Production Server
+
+
+paths:
+  /todos:
+    get:
+      summary: All Todos
+      description: Get All Todos
+      security:  
+        - JWT: []
+      tags:
+        - Todos
+      responses:
+        200:
+          description: Success
+          schema:
+            items:
+              type: object
+              properties:
+                uuid:
+                  type: string
+                title:
+                  type: string
+                description:
+                  type: string
+                completed:
+                  type: boolean
+  /todos/{uuid}:
+    get:
+      summary: Get a single Todo
+      description: get a single todo given an id
+      security:  
+        - JWT: []
+      tags:
+        - Todos
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:  
+        200:
+          description: Success
+          schema:
+            $ref: '#/components/schema/Todo'
+        404:
+          description: NotFound
+          schema:
+            $ref: '#/components/schema/Responses'
+
+  /todos/{id}:
+    put:
+      summary: Update a todo
+      description: update a todo given an id
+      security:  
+        - JWT: []
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      tags: 
+        - Todos
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - in: body
+          name: todo
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+              description:
+                  type: string
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: '#/components/schema/Todo'
+        400:
+          description: InvalidRequest
+          schema:
+            $ref: '#/components/schema/Responses'
+        404:
+          description: NotFound
+          schema:
+            $ref: '#/components/schema/Responses'
+  /todos/{oldId}:
+    delete:
+      summary: Delete a Todo
+      description: deletes a todo given an id
+      security:  
+        - JWT: []
+      tags:
+        - Todos
+      parameters:
+        - name: oldId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        204:
+          description: No Content
+          $ref: '#/components/schema/Responses'
+        404:
+          description: Not Found
+          schema:
+            $ref: '#/components/schema/Responses'
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/components/schema/Responses'
+  /todos/create:
+    post:
+      summary: Create a todo
+      description: creates a todo
+      security:  
+        - JWT: []
+      tags:
+        - Todos
+      parameters:
+        - name: Todo
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+              description:
+                type: string
+              completed:
+                type: boolean
+      responses:
+        201:
+          summary: Created
+          schema:
+            $ref: '#/components/schema/Responses'
+        400:
+          summary: Bad Request
+          schema:
+            $ref: '#/components/schema/Responses'
+  /auth/login:
+    post:
+      summary: Login
+      description: logs a user in
+      tags:
+        - Authentication
+      consumes: 
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: User
+          properties:
+            userName:
+              type: string
+            password:
+              type: string
+      responses:
+        201:
+          description: Created
+          schema:
+            $ref: '#/components/schema/Responses'
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/components/schema/Responses'
+        404:
+          description: Not Found
+          schema:
+            $ref: '#/components/schema/Responses'
+  /auth/register:
+    post:
+      summary: Register a user
+      description: register a user with given data
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - Authentication
+      parameters:
+        - in: body
+          name: User
+          schema:
+            type: object
+            properties:
+              firstName:
+                type: string
+              lastName:
+                type: string
+              userName:
+                type: string
+              password:
+                type: string
+              email:
+                type: string
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: '#/components/schema/Responses'
+        404:
+          description: NotFound
+          schema:
+            $ref: '#/components/schema/Responses'
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/components/schema/Responses'
+  /auth/refresh:
+    post:
+      summary: Refresh Token
+      description: refreshes the access token given the refresh token
+      security:  
+        - JWT: []
+      tags:
+        - Authentication
+      responses:
+        403:
+          description: Forbidden
+          schema:
+            $ref: '#/components/schema/Responses'
+
+
+components:
+  schema:
+    Todo:
+      type: object
+      properties:
+        uuid:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        completed:
+          type: boolean
+    Responses:
+      type: object
+      properties:
+        status:
+          type: string
+        statusCode:
+          type: integer
+        data:
+          type: object
+        
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+
+securityDefinitions:  
+  JWT:  
+    type: apiKey  
+    in: header  
+    name: Authorization
+
+
